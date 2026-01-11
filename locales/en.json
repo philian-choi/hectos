@@ -1,0 +1,97 @@
+{
+    "common": {
+        "start": "Start",
+        "next": "Next",
+        "skip": "Skip",
+        "done": "Done",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "retry": "Retry"
+    },
+    "tabs": {
+        "home": "Home",
+        "progress": "Progress",
+        "settings": "Settings"
+    },
+    "onboarding": {
+        "welcome": {
+            "title": "100 Pushups",
+            "subtitle": "6 weeks is all you need",
+            "start": "Get Started"
+        },
+        "testIntro": {
+            "title": "Test Your Level",
+            "description": "How many pushups can you do right now?",
+            "instruction": "Do as many as you can. Press start when ready.",
+            "start": "Start Test"
+        },
+        "test": {
+            "title": "Tap to Count",
+            "done": "Done"
+        },
+        "result": {
+            "title": "Test Complete!",
+            "count": "{{count}} pushups",
+            "columnAssigned": "Starting from Column {{column}}",
+            "column1": "Starting at beginner level",
+            "column2": "Starting at intermediate level",
+            "column3": "Starting at advanced level",
+            "startProgram": "Start Program"
+        }
+    },
+    "home": {
+        "title": "Today's Workout",
+        "progress": "Week {{week}} Day {{day}}",
+        "sets": "sets",
+        "totalReps": "{{count}} total",
+        "startWorkout": "Start Workout",
+        "totalPushups": "Total Pushups"
+    },
+    "workout": {
+        "set": "Set {{current}}/{{total}}",
+        "target": "Target: {{count}}",
+        "max": "Do your max!",
+        "rest": "{{seconds}}s rest",
+        "skipRest": "Skip",
+        "complete": {
+            "title": "Workout Complete!",
+            "totalPushups": "{{count}} total",
+            "setsCompleted": "{{count}} sets completed",
+            "goHome": "Go Home"
+        },
+        "tapToCount": "Tap screen to count",
+        "hint": {
+            "sensor": "Face down to count"
+        }
+    },
+    "progress": {
+        "title": "Your Progress",
+        "week": "Week {{week}}",
+        "exhaustionTest": "Exhaustion Test"
+    },
+    "settings": {
+        "title": "Settings",
+        "general": "General",
+        "preferences": "Preferences",
+        "data": "Data & Purchase",
+        "about": "About",
+        "language": "Language",
+        "sound": "Sound",
+        "vibration": "Vibration",
+        "autoCount": "Auto Count (Beta)",
+        "restorePurchase": "Restore Purchase",
+        "reset": "Reset Progress",
+        "version": "Version"
+    },
+    "purchase": {
+        "title": "6-Week Program",
+        "description": "Complete coaching to 100 pushups",
+        "features": {
+            "program": "Full 6-week program",
+            "adaptive": "Adaptive difficulty",
+            "tracking": "Progress tracking & stats"
+        },
+        "buy": "Purchase",
+        "restore": "Restore Purchase"
+    }
+}

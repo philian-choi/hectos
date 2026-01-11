@@ -1,0 +1,107 @@
+# BMM Workflow Status - Hectos
+# Generated: 2026-01-11
+# This tracks progress through BMM methodology Analysis, Planning, and Solutioning phases.
+# Implementation phase is tracked separately in sprint-status.yaml
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2026-01-11T16:52:06+09:00"
+project: "Hectos"
+project_type: "100 Pushups Challenge Mobile App"
+selected_track: "bmad-method"
+field_type: "greenfield"
+workflow_path: "_bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+
+workflow_status:
+  phase_1_analysis:
+    name: "Analysis (Optional)"
+    workflows:
+      brainstorm:
+        status: "skipped"
+        agent: "analyst"
+        command: "/bmad-bmm-workflows-brainstorming"
+        note: "User chose not to include"
+
+      research:
+        status: "research/market-pushup-apps-research-2026-01-11.md"
+        agent: "analyst"
+        command: "/bmad-bmm-workflows-research"
+        note: "Completed - Competitive analysis for pushup training apps with differentiation strategy"
+
+      product-brief:
+        status: "product-brief-hectos-2026-01-11.md"
+        agent: "analyst"
+        command: "/bmad-bmm-workflows-create-product-brief"
+        note: "Completed - Strategic product planning with vision, users, metrics, and MVP scope"
+
+  phase_2_planning:
+    name: "Planning"
+    workflows:
+      prd:
+        status: "prd.md"
+        agent: "pm"
+        command: "/bmad-bmm-workflows-prd"
+        output: "Product Requirements Document with FRs and NFRs"
+        note: "Completed - Full PRD with success criteria, user journeys, functional/non-functional requirements"
+
+      ux-design:
+        status: "ux-design-specification.md"
+        condition: "if_has_ui"
+        agent: "ux-designer"
+        command: "/bmad-bmm-workflows-create-ux-design"
+        note: "Completed - Full UX specification with design system, screens, and components"
+
+  phase_3_solutioning:
+    name: "Solutioning"
+    workflows:
+      architecture:
+        status: "architecture.md"
+        agent: "architect"
+        command: "/bmad-bmm-workflows-create-architecture"
+        output: "System architecture document"
+        note: "Completed - Full system architecture with tech stack, data flow, and ADRs"
+
+      epics-and-stories:
+        status: "epics-and-stories.md"
+        agent: "pm"
+        command: "/bmad-bmm-workflows-create-epics-and-stories"
+        note: "Completed - 5 Epics, 20 Stories ready for implementation"
+
+      test-design:
+        status: "optional"
+        agent: "tea"
+        command: "/bmad-bmm-workflows-testarch-test-design"
+        output: "System-level testability review"
+
+      implementation-readiness:
+        status: "required"
+        agent: "architect"
+        command: "/bmad-bmm-workflows-check-implementation-readiness"
+        note: "Validates PRD + Architecture + Epics + UX"
+
+  phase_4_implementation:
+    name: "Implementation"
+    workflows:
+      sprint-planning:
+        status: "required"
+        agent: "sm"
+        command: "/bmad-bmm-workflows-sprint-planning"
+        note: "Creates sprint plan - subsequent work tracked in sprint-status.yaml"
+
+# Next recommended workflow
+next_workflow:
+  id: "create-architecture"
+  name: "Architecture"
+  agent: "architect"
+  command: "/bmad-bmm-workflows-create-architecture"
+  description: "Define system architecture based on completed PRD"

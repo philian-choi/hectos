@@ -1,0 +1,97 @@
+{
+    "common": {
+        "start": "시작하기",
+        "next": "다음",
+        "skip": "건너뛰기",
+        "done": "완료",
+        "cancel": "취소",
+        "confirm": "확인",
+        "retry": "다시 시도"
+    },
+    "tabs": {
+        "home": "홈",
+        "progress": "진도",
+        "settings": "설정"
+    },
+    "onboarding": {
+        "welcome": {
+            "title": "100개 푸쉬업",
+            "subtitle": "6주면 충분합니다",
+            "start": "시작하기"
+        },
+        "testIntro": {
+            "title": "나의 실력 확인하기",
+            "description": "지금 최대 몇 개 할 수 있나요?",
+            "instruction": "최대한 많이 해보세요. 준비되면 시작을 눌러주세요.",
+            "start": "테스트 시작"
+        },
+        "test": {
+            "title": "터치해서 카운트",
+            "done": "완료"
+        },
+        "result": {
+            "title": "테스트 완료!",
+            "count": "{{count}}개",
+            "columnAssigned": "Column {{column}}에서 시작합니다",
+            "column1": "초급 레벨로 시작합니다",
+            "column2": "중급 레벨로 시작합니다",
+            "column3": "고급 레벨로 시작합니다",
+            "startProgram": "프로그램 시작"
+        }
+    },
+    "home": {
+        "title": "오늘의 운동",
+        "progress": "Week {{week}} Day {{day}}",
+        "sets": "세트",
+        "totalReps": "총 {{count}}개",
+        "startWorkout": "운동 시작",
+        "totalPushups": "총 푸쉬업"
+    },
+    "workout": {
+        "set": "세트 {{current}}/{{total}}",
+        "target": "목표: {{count}}개",
+        "max": "최대한 많이!",
+        "rest": "{{seconds}}초 휴식",
+        "skipRest": "건너뛰기",
+        "complete": {
+            "title": "운동 완료!",
+            "totalPushups": "총 {{count}}개",
+            "setsCompleted": "{{count}}세트 완료",
+            "goHome": "홈으로"
+        },
+        "tapToCount": "화면을 터치해서 카운트하세요",
+        "hint": {
+            "sensor": "얼굴을 가까이 대세요"
+        }
+    },
+    "progress": {
+        "title": "진도 현황",
+        "week": "Week {{week}}",
+        "exhaustionTest": "Exhaustion Test"
+    },
+    "settings": {
+        "title": "설정",
+        "general": "일반",
+        "preferences": "기본 설정",
+        "data": "데이터 및 구매",
+        "about": "정보",
+        "language": "언어",
+        "sound": "사운드",
+        "vibration": "진동",
+        "autoCount": "자동 카운트 (베타)",
+        "restorePurchase": "구매 복원",
+        "reset": "데이터 초기화",
+        "version": "버전"
+    },
+    "purchase": {
+        "title": "6주 프로그램",
+        "description": "100개 푸쉬업 달성까지 완벽한 코칭",
+        "features": {
+            "program": "6주 완전한 프로그램",
+            "adaptive": "적응형 난이도 조정",
+            "tracking": "진도 추적 및 통계"
+        },
+        "buy": "구매하기",
+        "restore": "구매 복원"
+    }
+}
