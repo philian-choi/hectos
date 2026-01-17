@@ -2,39 +2,41 @@
   "expo": {
     "name": "Hectos",
     "slug": "hectos",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#002b5c"
     },
     "scheme": "hectos",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hectos.app",
-      "buildNumber": "1",
+      "buildNumber": "10",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSMotionUsageDescription": "Motion data is used to track your pushup exercises accurately."
-      }
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "runtimeVersion": "1.0.2"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#002b5c"
       },
-      "package": "com.hectos.app"
+      "package": "com.hectos.app",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "web": {
       "bundler": "metro",
       "output": "static"
     },
     "plugins": [
-      "expo-router",
       "expo-localization"
     ],
     "experiments": {
@@ -47,6 +49,9 @@
       "eas": {
         "projectId": "1364908f-6436-4fa5-94f9-97e084f48175"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1364908f-6436-4fa5-94f9-97e084f48175"
     }
   }
 }
