@@ -1,77 +1,107 @@
-import { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Pressable, useColorScheme } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+
+import { useState, useRef, useCallback, useEffect } from "react";
+import { View, Text, StyleSheet, Pressable, useColorScheme, AppState, Share, Platform } from "react-native";
+import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
 import ConfettiCannon from "react-native-confetti-cannon";
-import { Proximity } from "expo-sensors";
 import { Feather } from "@expo/vector-icons";
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withSpring,
-    withSequence
+    withSequence,
+    withTiming
 } from "react-native-reanimated";
+import { Analytics } from "@/lib/analytics";
 
 import { SafeScreen } from "@/components/layout/SafeScreen";
 import { Button } from "@/components/ui/Button";
 import { RestTimer } from "@/components/workout/RestTimer";
+import { FaceIndicator } from "@/components/ui/FaceIndicator";
 import { useProgramData } from "@/hooks/useProgramData";
+import { useFaceDetector } from "@/hooks/useFaceDetector";
 import { useUserStore } from "@/stores/useUserStore";
 import { colors, spacing, typography } from "@/constants/theme";
 
 export default function WorkoutSessionScreen() {
-    const { session } = useLocalSearchParams();
-    const { t } = useTranslation();
+    const params = useLocalSearchParams();
     const router = useRouter();
+    const { t } = useTranslation();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
-    const { todayWorkout, restTime } = useProgramData();
-    const { completeSession, vibrationEnabled, soundEnabled, autoCountEnabled } = useUserStore();
+    const { session } = params;
 
-    // Sensor Logic (Auto Count)
-    const isDown = useRef(false);
-    const [isProximityAvailable, setIsProximityAvailable] = useState(false);
+    // Parse session ID (e.g. "1-1")
+    const [weekStr, dayStr] = (session as string || "1-1").split("-");
+    const currentWeek = parseInt(weekStr, 10);
+    const currentDay = parseInt(dayStr, 10);
 
+    // Global State
+    const {
+        currentColumn,
+        completeSession,
+        autoCountEnabled,
+        soundEnabled,
+        vibrationEnabled
+    } = useUserStore();
+
+    // Program Data
+    const { getWorkout, restTime } = useProgramData();
+    const todayWorkout = getWorkout(currentWeek, currentDay, currentColumn);
+    const sets = todayWorkout?.sets || [];
+    const totalSets = sets.length;
+
+    // Analytics: Track Workout Start
     useEffect(() => {
-        Proximity.isAvailableAsync().then(setIsProximityAvailable);
+        Analytics.track('workout_start', {
+            session: params.session,
+            autoCount: autoCountEnabled
+        });
     }, []);
 
-    useEffect(() => {
-        if (autoCountEnabled && isProximityAvailable && !isResting && !isSessionComplete) {
-            const subscription = Proximity.addListener(({ isNear }) => {
-                // isNear: Object is close (screen off distance usually ~5cm)
-                if (isNear && !isDown.current) {
-                    isDown.current = true;
-                    if (vibrationEnabled) {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); // Feedback for "Down"
-                    }
-                } else if (!isNear && isDown.current) {
-                    isDown.current = false;
-                    handleTap(); // Count up on "Up"
-                }
-            });
-            return () => subscription.remove();
-        }
-    }, [autoCountEnabled, isProximityAvailable, isResting, isSessionComplete]);
-
+    // Local State
     const [currentSetIndex, setCurrentSetIndex] = useState(0);
     const [currentCount, setCurrentCount] = useState(0);
     const [isResting, setIsResting] = useState(false);
     const [completedReps, setCompletedReps] = useState<number[]>([]);
     const [isSessionComplete, setIsSessionComplete] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
+    const [isSensorAvailable, setIsSensorAvailable] = useState(false);
 
-    // Animation values
+    // We update ref to handleTap so listener can call it
+    const handleTapRef = useRef(() => { });
+
+    // --- Face Detector Hook --- //
+    const { hasFace, isAvailable } = useFaceDetector({
+        // Always enabled during active workout set, BUT NOT when paused
+        enabled: !isResting && !isSessionComplete && !isPaused,
+        vibrationEnabled,
+        onDown: () => {
+            if (vibrationEnabled) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+        },
+        onUp: () => {
+            handleTapRef.current();
+        },
+        onStatusChange: (status) => {
+            setIsSensorAvailable(status === "Vision Active");
+        },
+    });
+
+    // --- Animation values --- //
     const scale = useSharedValue(1);
-    const bgOpacity = useSharedValue(0);
 
-    // Validate session data
+    // --- Validation --- //
     if (!todayWorkout) {
         return (
             <SafeScreen>
                 <View style={styles.center}>
-                    <Text>Error: No workout data found</Text>
-                    <Button onPress={() => router.back()}>Go Back</Button>
+                    <Text style={{ color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }}>
+                        {t("workout.error")}
+                    </Text>
+                    <Button onPress={() => router.back()}>{t("workout.goBack")}</Button>
                 </View>
             </SafeScreen>
         );
@@ -79,23 +109,28 @@ export default function WorkoutSessionScreen() {
 
     const targetReps = todayWorkout.sets[currentSetIndex];
     const isMaxSet = todayWorkout.lastSetMax && currentSetIndex === todayWorkout.sets.length - 1;
-    const totalSets = todayWorkout.sets.length;
 
+    // Prevent double counting (Debounce 100ms)
+    const lastTapTime = useRef(0);
 
-
+    // --- Handlers --- //
     const handleTap = () => {
-        // Prevent counting during rest or completion
-        if (isResting || isSessionComplete) return;
+        const now = Date.now();
+        if (now - lastTapTime.current < 100) return; // Ignore rapid taps
+        lastTapTime.current = now;
+
+        // Prevent counting during rest, completion, or pause
+        if (isResting || isSessionComplete || isPaused) return;
 
         // Feedback
         if (vibrationEnabled) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
 
         // Animation
         scale.value = withSequence(
-            withSpring(1.1, { damping: 10 }),
-            withSpring(1)
+            withTiming(1.3, { duration: 50 }),
+            withSpring(1, { damping: 12, stiffness: 200 })
         );
 
         const newCount = currentCount + 1;
@@ -103,24 +138,21 @@ export default function WorkoutSessionScreen() {
 
         // Check for set completion (unless it's a max set)
         if (!isMaxSet && newCount >= targetReps) {
-            // Optional: Auto-finish set or let user continue?
-            // For now, let's auto-finish after a brief delay if exact match
-            // But usually users might do more. Let's provide a "Done" button or auto-trigger rest.
-            // Decision: UX spec says "Target Count". Let's wait for user to hit "Done" or max out?
-            // UX Spec says: "Goal met -> Auto rest screen transition"
             finishSet(newCount);
         }
     };
 
+    // Update Ref for Sensor
+    handleTapRef.current = handleTap;
+
     const finishSet = (finalCount: number) => {
-        // Save reps
         const newCompletedReps = [...completedReps, finalCount];
         setCompletedReps(newCompletedReps);
 
         if (currentSetIndex < totalSets - 1) {
             // Go to rest
             setIsResting(true);
-            setCurrentCount(0); // Reset for next set strictly speaking, but wait for rest to finish
+            setCurrentCount(0);
         } else {
             // Finish Session
             handleSessionComplete(newCompletedReps);
@@ -128,6 +160,9 @@ export default function WorkoutSessionScreen() {
     };
 
     const handleRestComplete = () => {
+        if (vibrationEnabled) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
         setIsResting(false);
         setCurrentSetIndex((prev) => prev + 1);
         setCurrentCount(0);
@@ -137,6 +172,30 @@ export default function WorkoutSessionScreen() {
         setIsSessionComplete(true);
         const total = reps.reduce((a, b) => a + b, 0);
         completeSession(total);
+
+        if (vibrationEnabled) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+
+        Analytics.track('workout_complete', {
+            week: currentWeek,
+            day: currentDay,
+            totalReps: total,
+            sets: reps
+        });
+    };
+
+    const handlePause = () => {
+        setIsPaused(true);
+    };
+
+    const handleResume = () => {
+        setIsPaused(false);
+    };
+
+    const handleQuit = () => {
+        setIsPaused(false);
+        router.back();
     };
 
     const handleGoHome = () => {
@@ -149,6 +208,27 @@ export default function WorkoutSessionScreen() {
     }));
 
     // --- Views --- //
+
+    // 0. Paused Overlay
+    if (isPaused) {
+        return (
+            <SafeScreen>
+                <View style={styles.center}>
+                    <Text style={[styles.title, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}>
+                        {t("common.pause")}
+                    </Text>
+                    <View style={{ gap: 16, width: '100%', paddingHorizontal: 32 }}>
+                        <Button onPress={handleResume} size="large">
+                            {t("common.resume")}
+                        </Button>
+                        <Button onPress={handleQuit} variant="secondary">
+                            {t("common.quit")}
+                        </Button>
+                    </View>
+                </View>
+            </SafeScreen>
+        );
+    }
 
     // 1. Session Complete View
     if (isSessionComplete) {
@@ -170,6 +250,13 @@ export default function WorkoutSessionScreen() {
                     <Button onPress={handleGoHome} size="large">
                         {t("workout.complete.goHome")}
                     </Button>
+                    <Button
+                        onPress={() => Share.share({ message: t("workout.complete.shareMessage", { count: total }) })}
+                        variant="secondary"
+                        style={{ marginTop: 16 }}
+                    >
+                        {t("workout.complete.share")}
+                    </Button>
                 </View>
             </SafeScreen>
         );
@@ -177,12 +264,16 @@ export default function WorkoutSessionScreen() {
 
     // 2. Rest Timer View
     if (isResting) {
+        const nextSetReps = currentSetIndex + 1 < totalSets ? sets[currentSetIndex + 1] : undefined;
         return (
             <SafeScreen>
                 <RestTimer
                     duration={restTime}
                     onComplete={handleRestComplete}
                     onSkip={handleRestComplete}
+                    nextSetReps={nextSetReps}
+                    currentSet={currentSetIndex}
+                    totalSets={totalSets}
                 />
             </SafeScreen>
         );
@@ -191,35 +282,42 @@ export default function WorkoutSessionScreen() {
     // 3. Main Workout View
     return (
         <SafeScreen edges={["top", "bottom"]}>
-            <View style={styles.container}>
-                {/* Auto Count Indicator */}
-                {autoCountEnabled && isProximityAvailable && !isResting && !isSessionComplete && (
-                    <View style={styles.sensorIndicator}>
-                        <Feather name="wifi" size={14} color={colors.primary} />
-                        <Text style={[styles.sensorText, { color: colors.primary }]}>Auto Count</Text>
-                    </View>
+            <View style={styles.header}>
+                {!isPaused && (
+                    <Pressable onPress={handlePause} style={styles.pauseButton} hitSlop={10}>
+                        <Feather name="pause" size={24} color={isDark ? colors.dark.textPrimary : colors.light.textPrimary} />
+                    </Pressable>
                 )}
 
-                {/* Header Information */}
-                <View style={styles.header}>
+                <View style={styles.headerState}>
                     <Text style={[styles.setInfo, { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }]}>
-                        {t("workout.set", { current: currentSetIndex + 1, total: totalSets })}
+                        {t("workout.set", { current: currentSetIndex + 1, total: totalSets })} •
                     </Text>
-                    <Text style={[styles.targetInfo, { color: colors.primary }]}>
-                        {isMaxSet ? t("workout.max") : t("workout.target", { count: targetReps })}
-                    </Text>
+                    {/* Always show indicator in workout view */}
+                    {!isResting && !isSessionComplete && (
+                        <FaceIndicator hasFace={hasFace} isAvailable={isAvailable} style={{ marginLeft: 8 }} />
+                    )}
                 </View>
 
-                {/* Touch Area */}
+                <Text style={[styles.targetInfo, { color: colors.primary }]}>
+                    {isMaxSet ? t("workout.max") : t("workout.target", { count: targetReps })}
+                </Text>
+            </View>
+
+            <View style={styles.container}>
                 <Pressable
                     style={styles.touchArea}
                     onPress={handleTap}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("workout.tapToCount")}
+                    accessibilityHint={t("workout.sensorHint")}
                 >
                     <Animated.View style={[styles.counterContainer, counterStyle]}>
                         <Text
                             style={[styles.currentCount, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}
                             adjustsFontSizeToFit
                             numberOfLines={1}
+                            accessibilityLabel={currentCount + " " + t("workout.reps", { count: currentCount })}
                         >
                             {currentCount}
                         </Text>
@@ -229,14 +327,26 @@ export default function WorkoutSessionScreen() {
                             </Text>
                         )}
                     </Animated.View>
-                    <Text style={styles.tapHint}>
-                        {autoCountEnabled && isProximityAvailable
-                            ? t("workout.hint.sensor")
-                            : t("workout.tapToCount")}
-                    </Text>
+
+                    <View style={styles.tapInstructionContainer}>
+                        <View style={[styles.tapIconCircle, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+                            <Feather name="target" size={24} color={colors.primary} />
+                        </View>
+                        <Text style={[styles.tapHintPrimary, {
+                            color: isDark ? colors.dark.textPrimary : colors.light.textPrimary,
+                        }]}>
+                            {t("workout.tapToCount")}
+                        </Text>
+                        {isAvailable && (
+                            <Text style={[styles.tapHintSecondary, {
+                                color: isDark ? colors.dark.textSecondary : colors.light.textSecondary,
+                            }]}>
+                                {t("workout.sensorHint")}
+                            </Text>
+                        )}
+                    </View>
                 </Pressable>
 
-                {/* Manual Finish Button (Useful for Max sets or early finish) */}
                 {isMaxSet && (
                     <View style={styles.footer}>
                         <Button onPress={() => finishSet(currentCount)} size="large">
@@ -259,15 +369,25 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     header: {
-        padding: spacing.lg,
+        flexDirection: "row",
+        justifyContent: "space-between",
         alignItems: "center",
+        marginBottom: spacing.md,
+        paddingHorizontal: spacing.md,
+        height: 48,
+    },
+    headerState: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    pauseButton: {
+        padding: spacing.sm,
     },
     setInfo: {
         ...typography.h3,
-        marginBottom: spacing.xs,
     },
     targetInfo: {
-        ...typography.h2,
+        ...typography.h4,
         fontWeight: "700",
     },
     touchArea: {
@@ -290,40 +410,14 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         opacity: 0.6,
     },
-    tapHint: {
-        marginTop: spacing.xl,
-        opacity: 0.5,
-    },
     footer: {
         padding: spacing.lg,
     },
-    sensorIndicator: {
-        position: 'absolute',
-        top: spacing.lg,
-        right: spacing.lg,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        backgroundColor: 'rgba(59, 130, 246, 0.15)',
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 16,
-        zIndex: 10,
-    },
-    sensorText: {
-        fontSize: 11,
-        fontWeight: '600',
-    },
-    // Complete Screen
     completeContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
         padding: spacing.xl,
-    },
-    emoji: {
-        fontSize: 80,
-        marginBottom: spacing.lg,
     },
     title: {
         ...typography.h1,
@@ -340,5 +434,30 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         ...typography.h3,
+    },
+    tapInstructionContainer: {
+        marginTop: spacing.xl,
+        alignItems: 'center',
+        gap: spacing.sm,
+    },
+    tapIconCircle: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: spacing.xs,
+    },
+    tapHintPrimary: {
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    tapHintSecondary: {
+        fontSize: 13,
+        fontWeight: '400',
+        textAlign: 'center',
+        opacity: 0.7,
+        marginTop: 4,
     },
 });
