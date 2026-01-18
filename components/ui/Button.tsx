@@ -1,5 +1,6 @@
-import { Pressable, Text, StyleSheet, ViewStyle, TextStyle } from "react-native";
-import { colors, borderRadius, spacing } from "@/constants/theme";
+import { Pressable, Text, StyleSheet, ViewStyle, TextStyle, AccessibilityRole, Platform } from "react-native";
+import * as Haptics from "expo-haptics";
+import { colors, borderRadius, spacing, typography } from "@/constants/theme";
 
 interface ButtonProps {
     children: React.ReactNode;
@@ -8,6 +9,9 @@ interface ButtonProps {
     size?: "small" | "medium" | "large";
     disabled?: boolean;
     style?: ViewStyle;
+    accessibilityRole?: AccessibilityRole;
+    accessibilityLabel?: string;
+    accessibilityHint?: string;
 }
 
 export function Button({
@@ -17,6 +21,9 @@ export function Button({
     size = "medium",
     disabled = false,
     style,
+    accessibilityRole = "button",
+    accessibilityLabel,
+    accessibilityHint,
 }: ButtonProps) {
     const getContainerStyle = (): ViewStyle => {
         const base: ViewStyle = {
@@ -65,13 +72,13 @@ export function Button({
         // Size
         switch (size) {
             case "small":
-                base.fontSize = 14;
+                base.fontSize = typography.bodySmall.fontSize;
                 break;
             case "large":
-                base.fontSize = 18;
+                base.fontSize = typography.h4.fontSize;
                 break;
             default:
-                base.fontSize = 16;
+                base.fontSize = typography.body.fontSize;
         }
 
         // Variant
@@ -81,7 +88,7 @@ export function Button({
                 base.color = colors.primary;
                 break;
             default:
-                base.color = "#FFFFFF";
+                base.color = colors.white;
         }
 
         return base;
@@ -89,8 +96,18 @@ export function Button({
 
     return (
         <Pressable
-            onPress={onPress}
+            onPress={(e) => {
+                if (!disabled) {
+                    if (Platform.OS !== 'web') {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    }
+                    onPress();
+                }
+            }}
             disabled={disabled}
+            accessibilityRole={accessibilityRole}
+            accessibilityLabel={accessibilityLabel}
+            accessibilityHint={accessibilityHint}
             style={({ pressed }) => [
                 getContainerStyle(),
                 pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
