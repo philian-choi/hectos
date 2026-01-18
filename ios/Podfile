@@ -78,5 +78,18 @@ target 'Hectos' do
         end
       end
     end
+
+    # Patch ReachabilitySwift for iOS 26 SDK compatibility (switch must be exhaustive)
+    # Copy our pre-patched version over the Pod's version
+    patched_file = File.join(__dir__, 'patches', 'Reachability.swift')
+    target_file = File.join(installer.sandbox.root, 'ReachabilitySwift', 'Sources', 'Reachability.swift')
+    
+    if File.exist?(patched_file) && File.exist?(File.dirname(target_file))
+      puts "Applying iOS 26 SDK compatibility patch to ReachabilitySwift..."
+      FileUtils.cp(patched_file, target_file)
+      puts "ReachabilitySwift patched successfully!"
+    else
+      puts "Warning: Could not patch ReachabilitySwift - patch file or target not found"
+    end
   end
 end
