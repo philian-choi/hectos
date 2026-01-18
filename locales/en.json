@@ -63,7 +63,7 @@
             "recommendedPlan": "RECOMMENDED PLAN",
             "levelAssigned": "Based on your {{count}} reps, AI assigned you to Level {{level}}.",
             "potential": "You have excellent potential. We can help you reach 100 pushups in 6 weeks.",
-            "unlock": "Unlock My Plan",
+            "unlock": "Start Training",
             "columnAssigned": "Starting from Column {{column}}",
             "column1": "Starting at beginner level",
             "column2": "Starting at intermediate level",
@@ -156,5 +156,15 @@
         "restoreFailed": "Restore failed",
         "restoreNotSupported": "Consumable items cannot be restored without a server account.",
         "networkError": "Please check your internet connection."
+    },
+    "notifications": {
+        "daily": {
+            "title": "Time for pushups!",
+            "body": "Consistency is key. Let's hit the floor."
+        },
+        "nudge": {
+            "title": "Don't forget your goal!",
+            "body": "Day 1 is waiting for you. Start now."
+        }
     }
 }
