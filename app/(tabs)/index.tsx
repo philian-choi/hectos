@@ -9,7 +9,8 @@ import { useProgramData } from "@/hooks/useProgramData";
 import { useUserStore } from "@/stores/useUserStore";
 import { colors, spacing, typography } from "@/constants/theme";
 import { WeeklyMiniChart } from "@/components/ui/WeeklyMiniChart";
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, withSpring } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 
 export default function HomeScreen() {
     const { t, i18n } = useTranslation();
@@ -42,6 +43,12 @@ export default function HomeScreen() {
         transform: [{ scale: scale.value }],
     }));
 
+    // Shake Animation for Lock
+    const shakeTranslateX = useSharedValue(0);
+    const animatedShakeStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: shakeTranslateX.value }]
+    }));
+
     // Date formatting (using current locale)
     const today = new Date();
     const currentLang = i18n.language === 'ko' ? 'ko-KR' : 'en-US';
@@ -66,7 +73,21 @@ export default function HomeScreen() {
 
     const handleStartWorkout = () => {
         if (isLocked) {
-            router.push("/(auth)/purchase");
+            // Haptic Feedback
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+
+            // Shake Animation
+            shakeTranslateX.value = withSequence(
+                withTiming(10, { duration: 50 }),
+                withTiming(-10, { duration: 50 }),
+                withTiming(10, { duration: 50 }),
+                withTiming(0, { duration: 50 })
+            );
+
+            // Delay navigation slightly to show animation
+            setTimeout(() => {
+                router.push("/(auth)/purchase");
+            }, 300);
             return;
         }
 
@@ -171,7 +192,7 @@ export default function HomeScreen() {
                                 </View>
                             </View>
 
-                            <Animated.View style={animatedButtonStyle}>
+                            <Animated.View style={[animatedButtonStyle, animatedShakeStyle]}>
                                 <TouchableOpacity
                                     style={styles.startButton}
                                     onPress={handleStartWorkout}
