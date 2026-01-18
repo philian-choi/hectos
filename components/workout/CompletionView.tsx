@@ -8,13 +8,38 @@ import { Button } from '@/components/ui/Button';
 
 interface CompletionViewProps {
     completedReps: number[];
+    targetTotal?: number; // Optional to avoid breaking changes immediately
     onGoHome: () => void;
     isDark: boolean;
 }
 
-export function CompletionView({ completedReps, onGoHome, isDark }: CompletionViewProps) {
+export function CompletionView({ completedReps, targetTotal = 0, onGoHome, isDark }: CompletionViewProps) {
     const { t } = useTranslation();
     const total = completedReps.reduce((a, b) => a + b, 0);
+
+    // Feedback Logic
+    const ratio = targetTotal > 0 ? total / targetTotal : 1;
+    let iconName: any = "award";
+    let iconColor = colors.primary;
+    let feedbackTitle = t("workout.complete.title");
+    let feedbackBody = t("home.motivation"); // Default motivation
+
+    if (targetTotal > 0) {
+        if (ratio < 0.8) {
+            // Struggle
+            iconName = "trending-up";
+            iconColor = colors.warning || "#F59E0B";
+            feedbackTitle = "Keep Building"; // Will localize later
+            feedbackBody = "Strength is built in the struggle. Try this workout again soon.";
+        } else if (ratio > 1.2) {
+            // Overachiever
+            iconName = "zap";
+            iconColor = "#8B5CF6"; // Purple
+            feedbackTitle = "Unstoppable!";
+            feedbackBody = "You're crushing it! Next level is waiting.";
+        }
+        // Normal success uses defaults
+    }
 
     const handleShare = async () => {
         try {
@@ -28,29 +53,40 @@ export function CompletionView({ completedReps, onGoHome, isDark }: CompletionVi
 
     return (
         <View style={styles.container}>
-            <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} fadeOut={true} />
+            {ratio >= 0.8 && <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} fadeOut={true} />}
             <View style={styles.content}>
                 <Feather
-                    name="award"
+                    name={iconName}
                     size={80}
-                    color={colors.primary}
+                    color={iconColor}
                     style={{ marginBottom: spacing.lg }}
                 />
                 <Text style={[
                     styles.title,
                     { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }
                 ]}>
-                    {t("workout.complete.title")}
+                    {feedbackTitle}
                 </Text>
+
+                <Text style={{
+                    color: isDark ? colors.dark.textSecondary : colors.light.textSecondary,
+                    textAlign: 'center',
+                    marginBottom: spacing.xl,
+                    marginHorizontal: spacing.lg,
+                    fontSize: 16
+                }}>
+                    {feedbackBody}
+                </Text>
+
                 <View style={styles.statsContainer}>
-                    <Text style={[styles.statValue, { color: colors.primary }]}>
+                    <Text style={[styles.statValue, { color: iconColor }]}>
                         {total}
                     </Text>
                     <Text style={[
                         styles.statLabel,
                         { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }
                     ]}>
-                        {t("workout.complete.totalPushups", { count: total })}
+                        / {targetTotal > 0 ? targetTotal : total} {t("home.totalPushups")}
                     </Text>
                 </View>
                 <Button onPress={onGoHome} size="large">

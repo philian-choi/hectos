@@ -214,10 +214,12 @@ export default function WorkoutSessionScreen() {
 
     // 1. Session Complete View
     if (isSessionComplete) {
+        const targetTotalSum = sets.reduce((a, b) => a + b, 0);
         return (
             <SafeScreen>
                 <CompletionView
                     completedReps={completedReps}
+                    targetTotal={targetTotalSum}
                     onGoHome={handleGoHome}
                     isDark={isDark}
                 />
