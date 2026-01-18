@@ -6,7 +6,14 @@
         "done": "Done",
         "cancel": "Cancel",
         "confirm": "Confirm",
-        "retry": "Retry"
+        "retry": "Retry",
+        "error": "Error",
+        "success": "Success",
+        "ok": "OK",
+        "info": "Info",
+        "pause": "Pause",
+        "resume": "Resume",
+        "quit": "Quit Workout"
     },
     "tabs": {
         "home": "Home",
@@ -17,7 +24,21 @@
         "welcome": {
             "title": "100 Pushups",
             "subtitle": "6 weeks is all you need",
-            "start": "Get Started"
+            "start": "Get Started",
+            "slides": {
+                "slide1": {
+                    "title": "6 Weeks Challenge",
+                    "description": "Transform your strength with our scientifically designed 6-week program."
+                },
+                "slide2": {
+                    "title": "Auto Detection",
+                    "description": "Place your phone on the floor. Our smart sensor counts your pushups automatically."
+                },
+                "slide3": {
+                    "title": "Track Progress",
+                    "description": "Take a simple test to find your level and watch your stats grow."
+                }
+            }
         },
         "testIntro": {
             "title": "Test Your Level",
@@ -27,11 +48,22 @@
         },
         "test": {
             "title": "Tap to Count",
-            "done": "Done"
+            "done": "Done",
+            "sensorActive": "Sensor Active (Bright room recommended)",
+            "sensorHint": "Cover top of phone with face to count\n(Or tap screen)",
+            "tapHint": "Tap screen to count"
         },
         "result": {
-            "title": "Test Complete!",
-            "count": "{{count}} pushups",
+            "title": "AI Analysis Complete",
+            "baseline": "YOUR BASELINE",
+            "pushups": "Pushups",
+            "muscleEndurance": "MUSCLE ENDURANCE",
+            "coreStability": "CORE STABILITY",
+            "growthPotential": "GROWTH POTENTIAL",
+            "recommendedPlan": "RECOMMENDED PLAN",
+            "levelAssigned": "Based on your {{count}} reps, AI assigned you to Level {{level}}.",
+            "potential": "You have excellent potential. We can help you reach 100 pushups in 6 weeks.",
+            "unlock": "Unlock My Plan",
             "columnAssigned": "Starting from Column {{column}}",
             "column1": "Starting at beginner level",
             "column2": "Starting at intermediate level",
@@ -43,9 +75,18 @@
         "title": "Today's Workout",
         "progress": "Week {{week}} Day {{day}}",
         "sets": "sets",
+        "setsBreakdown": "{{count}} Sets Breakdown",
         "totalReps": "{{count}} total",
         "startWorkout": "Start Workout",
-        "totalPushups": "Total Pushups"
+        "totalPushups": "Total Pushups",
+        "goal": "GOAL",
+        "motivation": "Your only limit is you.",
+        "weeklyActivity": "Weekly Activity",
+        "programComplete": {
+            "title": "6-Week Program Complete!",
+            "message": "You've done {{count}} pushups in total. You're a legend!",
+            "restart": "Start New Journey"
+        }
     },
     "workout": {
         "set": "Set {{current}}/{{total}}",
@@ -53,20 +94,36 @@
         "max": "Do your max!",
         "rest": "{{seconds}}s rest",
         "skipRest": "Skip",
+        "nextSet": "NEXT SET ({{current}}/{{total}})",
+        "reps": "{{count}} reps",
+        "motivations": {
+            "1": "Great job! Keep going!",
+            "2": "You're doing amazing!",
+            "3": "Stay focused. Stay strong.",
+            "4": "One set at a time!",
+            "5": "Champions never quit!",
+            "6": "Almost there!"
+        },
         "complete": {
             "title": "Workout Complete!",
             "totalPushups": "{{count}} total",
             "setsCompleted": "{{count}} sets completed",
-            "goHome": "Go Home"
+            "goHome": "Go Home",
+            "share": "Share Achievement",
+            "shareMessage": "I just did {{count}} pushups with Hectos! 🔥 #PushupChallenge"
         },
         "tapToCount": "Tap screen to count",
-        "hint": {
-            "sensor": "Face down to count"
-        }
+        "sensorActive": "Sensor Active ({{lux}} lx)",
+        "sensorHint": "Face down to count (Sensor)\n(Or tap screen)",
+        "error": "Error: No workout data found",
+        "goBack": "Go Back"
     },
     "progress": {
         "title": "Your Progress",
         "week": "Week {{week}}",
+        "totalProgress": "Total Progress",
+        "completeMessage": "You did it!",
+        "ongoingMessage": "Consistent effort is key!",
         "exhaustionTest": "Exhaustion Test"
     },
     "settings": {
@@ -78,20 +135,26 @@
         "language": "Language",
         "sound": "Sound",
         "vibration": "Vibration",
-        "autoCount": "Auto Count (Beta)",
+        "autoCount": "Auto Count (Sensor)",
         "restorePurchase": "Restore Purchase",
         "reset": "Reset Progress",
-        "version": "Version"
+        "version": "Version",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service"
     },
     "purchase": {
         "title": "6-Week Program",
         "description": "Complete coaching to 100 pushups",
-        "features": {
-            "program": "Full 6-week program",
-            "adaptive": "Adaptive difficulty",
-            "tracking": "Progress tracking & stats"
-        },
-        "buy": "Purchase",
-        "restore": "Restore Purchase"
+        "aiAnalysis": "AI Adaptive Program",
+        "benefit1": "Personalized 6-week plan",
+        "benefit2": "Real-time performance analysis",
+        "benefit3": "Detailed stats & tracking",
+        "buyButton": "Start Now",
+        "restore": "Restore Purchase",
+        "success": "Purchase successful!",
+        "failed": "Purchase failed. Please try again.",
+        "restoreFailed": "Restore failed",
+        "restoreNotSupported": "Consumable items cannot be restored without a server account.",
+        "networkError": "Please check your internet connection."
     }
 }

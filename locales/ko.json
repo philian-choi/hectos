@@ -6,7 +6,14 @@
         "done": "완료",
         "cancel": "취소",
         "confirm": "확인",
-        "retry": "다시 시도"
+        "retry": "다시 시도",
+        "error": "오류",
+        "success": "성공",
+        "ok": "확인",
+        "info": "알림",
+        "pause": "일시 정지",
+        "resume": "다시 시작",
+        "quit": "운동 그만두기"
     },
     "tabs": {
         "home": "홈",
@@ -17,7 +24,21 @@
         "welcome": {
             "title": "100개 푸쉬업",
             "subtitle": "6주면 충분합니다",
-            "start": "시작하기"
+            "start": "시작하기",
+            "slides": {
+                "slide1": {
+                    "title": "6주 챌린지",
+                    "description": "과학적으로 설계된 6주 프로그램을 통해 당신의 근력을 변화시키세요."
+                },
+                "slide2": {
+                    "title": "자동 카운트",
+                    "description": "휴대폰을 바닥에 두세요. 조도 센서를 통해 푸쉬업 횟수를 자동으로 카운트합니다."
+                },
+                "slide3": {
+                    "title": "진도 추적",
+                    "description": "간단한 테스트를 통해 실력에 맞는 플랜을 배정받고 성장하는 수치를 확인하세요."
+                }
+            }
         },
         "testIntro": {
             "title": "나의 실력 확인하기",
@@ -27,11 +48,22 @@
         },
         "test": {
             "title": "터치해서 카운트",
-            "done": "완료"
+            "done": "완료",
+            "sensorActive": "센서 활성화됨 (밝은 곳을 권장합니다)",
+            "sensorHint": "얼굴을 휴대폰 상단에 가까이 대어 카운트하세요\n(또는 화면 터치)",
+            "tapHint": "화면을 터치해서 카운트하세요"
         },
         "result": {
-            "title": "테스트 완료!",
-            "count": "{{count}}개",
+            "title": "AI 분석 완료",
+            "baseline": "나의 기준점",
+            "pushups": "푸쉬업",
+            "muscleEndurance": "근지구력",
+            "coreStability": "코어 안정성",
+            "growthPotential": "성장 잠재력",
+            "recommendedPlan": "추천 플랜",
+            "levelAssigned": "{{count}}회 결과를 바탕으로 레벨 {{level}}로 배정되었습니다.",
+            "potential": "훌륭한 잠재력을 가지고 있습니다. 6주 안에 100개 달성을 도와드릴게요.",
+            "unlock": "내 플랜 잠금 해제",
             "columnAssigned": "Column {{column}}에서 시작합니다",
             "column1": "초급 레벨로 시작합니다",
             "column2": "중급 레벨로 시작합니다",
@@ -43,9 +75,18 @@
         "title": "오늘의 운동",
         "progress": "Week {{week}} Day {{day}}",
         "sets": "세트",
+        "setsBreakdown": "{{count}}세트 구성",
         "totalReps": "총 {{count}}개",
         "startWorkout": "운동 시작",
-        "totalPushups": "총 푸쉬업"
+        "totalPushups": "총 푸쉬업",
+        "goal": "목표",
+        "motivation": "당신의 한계는 당신뿐.",
+        "weeklyActivity": "주간 활동",
+        "programComplete": {
+            "title": "6주 프로그램 완료!",
+            "message": "총 {{count}}개의 푸쉬업을 하셨습니다. 당신은 전설입니다!",
+            "restart": "새 여정 시작"
+        }
     },
     "workout": {
         "set": "세트 {{current}}/{{total}}",
@@ -53,21 +94,37 @@
         "max": "최대한 많이!",
         "rest": "{{seconds}}초 휴식",
         "skipRest": "건너뛰기",
+        "nextSet": "다음 세트 ({{current}}/{{total}})",
+        "reps": "{{count}}회",
+        "motivations": {
+            "1": "좋아요! 계속 가세요!",
+            "2": "정말 잘하고 있어요!",
+            "3": "집중하세요. 강해지세요.",
+            "4": "한 세트씩!",
+            "5": "챔피언은 포기하지 않아요!",
+            "6": "거의 다 왔어요!"
+        },
         "complete": {
             "title": "운동 완료!",
             "totalPushups": "총 {{count}}개",
             "setsCompleted": "{{count}}세트 완료",
-            "goHome": "홈으로"
+            "goHome": "홈으로",
+            "share": "성과 공유하기",
+            "shareMessage": "오늘 헥토스로 푸쉬업 {{count}}개 완료! 🔥 #오운완 #헥토스"
         },
         "tapToCount": "화면을 터치해서 카운트하세요",
-        "hint": {
-            "sensor": "얼굴을 가까이 대세요"
-        }
+        "sensorActive": "센서 활성화됨 ({{lux}} lx)",
+        "sensorHint": "얼굴을 가까이 대어 카운트하세요 (센서)\n(또는 화면 터치)",
+        "error": "오류: 운동 데이터를 찾을 수 없습니다",
+        "goBack": "뒤로 가기"
     },
     "progress": {
         "title": "진도 현황",
-        "week": "Week {{week}}",
-        "exhaustionTest": "Exhaustion Test"
+        "week": "{{week}}주차",
+        "totalProgress": "전체 진도",
+        "completeMessage": "달성했습니다!",
+        "ongoingMessage": "꾸준함이 핵심입니다!",
+        "exhaustionTest": "탈진 테스트"
     },
     "settings": {
         "title": "설정",
@@ -78,20 +135,26 @@
         "language": "언어",
         "sound": "사운드",
         "vibration": "진동",
-        "autoCount": "자동 카운트 (베타)",
+        "autoCount": "자동 카운트 (센서)",
         "restorePurchase": "구매 복원",
         "reset": "데이터 초기화",
-        "version": "버전"
+        "version": "버전",
+        "privacyPolicy": "개인정보 처리방침",
+        "termsOfService": "이용약관"
     },
     "purchase": {
         "title": "6주 프로그램",
         "description": "100개 푸쉬업 달성까지 완벽한 코칭",
-        "features": {
-            "program": "6주 완전한 프로그램",
-            "adaptive": "적응형 난이도 조정",
-            "tracking": "진도 추적 및 통계"
-        },
-        "buy": "구매하기",
-        "restore": "구매 복원"
+        "aiAnalysis": "AI 적응형 프로그램",
+        "benefit1": "6주 완성 맞춤형 플랜",
+        "benefit2": "실시간 수행능력 분석",
+        "benefit3": "진도 및 상세 통계 제공",
+        "buyButton": "지금 시작하기",
+        "restore": "구매 복원",
+        "success": "구매가 완료되었습니다!",
+        "failed": "구매에 실패했습니다. 다시 시도해주세요.",
+        "restoreFailed": "복원에 실패했습니다.",
+        "restoreNotSupported": "소모성 상품은 서버 계정 없이 복원할 수 없습니다.",
+        "networkError": "인터넷 연결을 확인해주세요."
     }
 }

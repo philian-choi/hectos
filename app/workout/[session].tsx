@@ -209,26 +209,7 @@ export default function WorkoutSessionScreen() {
 
     // --- Views --- //
 
-    // 0. Paused Overlay
-    if (isPaused) {
-        return (
-            <SafeScreen>
-                <View style={styles.center}>
-                    <Text style={[styles.title, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}>
-                        {t("common.pause")}
-                    </Text>
-                    <View style={{ gap: 16, width: '100%', paddingHorizontal: 32 }}>
-                        <Button onPress={handleResume} size="large">
-                            {t("common.resume")}
-                        </Button>
-                        <Button onPress={handleQuit} variant="secondary">
-                            {t("common.quit")}
-                        </Button>
-                    </View>
-                </View>
-            </SafeScreen>
-        );
-    }
+
 
     // 1. Session Complete View
     if (isSessionComplete) {
@@ -253,7 +234,7 @@ export default function WorkoutSessionScreen() {
                     <Button
                         onPress={() => Share.share({ message: t("workout.complete.shareMessage", { count: total }) })}
                         variant="secondary"
-                        style={{ marginTop: 16 }}
+                        style={{ marginTop: spacing.md }}
                     >
                         {t("workout.complete.share")}
                     </Button>
@@ -295,7 +276,7 @@ export default function WorkoutSessionScreen() {
                     </Text>
                     {/* Always show indicator in workout view */}
                     {!isResting && !isSessionComplete && (
-                        <FaceIndicator hasFace={hasFace} isAvailable={isAvailable} style={{ marginLeft: 8 }} />
+                        <FaceIndicator hasFace={hasFace} isAvailable={isAvailable} style={{ marginLeft: spacing.sm }} />
                     )}
                 </View>
 
@@ -355,6 +336,25 @@ export default function WorkoutSessionScreen() {
                     </View>
                 )}
             </View>
+            {/* Paused Overlay */}
+            {isPaused && (
+                <View style={[styles.overlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)' }]}>
+                    <View style={styles.center}>
+                        <Feather name="pause-circle" size={64} color={colors.primary} style={{ marginBottom: spacing.lg }} />
+                        <Text style={[styles.title, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}>
+                            {t("common.pause")}
+                        </Text>
+                        <View style={{ gap: spacing.md, width: '100%', paddingHorizontal: spacing.xl }}>
+                            <Button onPress={handleResume} size="large">
+                                {t("common.resume")}
+                            </Button>
+                            <Button onPress={handleQuit} variant="secondary">
+                                {t("common.quit")}
+                            </Button>
+                        </View>
+                    </View>
+                </View>
+            )}
         </SafeScreen>
     );
 }
@@ -441,9 +441,9 @@ const styles = StyleSheet.create({
         gap: spacing.sm,
     },
     tapIconCircle: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: spacing["2xl"],
+        height: spacing["2xl"],
+        borderRadius: borderRadius.xl,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: spacing.xs,
@@ -459,5 +459,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         opacity: 0.7,
         marginTop: 4,
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 999,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
