@@ -1,10 +1,9 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, useColorScheme, AppState, Share, Platform } from "react-native";
+import { View, Text, StyleSheet, Pressable, useColorScheme, AppState, Platform } from "react-native";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
-import ConfettiCannon from "react-native-confetti-cannon";
 import { Feather } from "@expo/vector-icons";
 import Animated, {
     useSharedValue,
@@ -19,10 +18,14 @@ import { SafeScreen } from "@/components/layout/SafeScreen";
 import { Button } from "@/components/ui/Button";
 import { RestTimer } from "@/components/workout/RestTimer";
 import { FaceIndicator } from "@/components/ui/FaceIndicator";
+import { PauseOverlay } from "@/components/workout/PauseOverlay";
+import { CompletionView } from "@/components/workout/CompletionView";
+
 import { useProgramData } from "@/hooks/useProgramData";
 import { useFaceDetector } from "@/hooks/useFaceDetector";
 import { useUserStore } from "@/stores/useUserStore";
-import { colors, spacing, typography } from "@/constants/theme";
+import { colors, spacing, typography, borderRadius } from "@/constants/theme";
+import { hexToRgba } from "@/utils/colors";
 
 export default function WorkoutSessionScreen() {
     const params = useLocalSearchParams();
@@ -209,36 +212,15 @@ export default function WorkoutSessionScreen() {
 
     // --- Views --- //
 
-
-
     // 1. Session Complete View
     if (isSessionComplete) {
-        const total = completedReps.reduce((a, b) => a + b, 0);
         return (
             <SafeScreen>
-                <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} />
-                <View style={styles.completeContainer}>
-                    <Feather name="award" size={80} color={colors.primary} style={{ marginBottom: spacing.lg }} />
-                    <Text style={[styles.title, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}>
-                        {t("workout.complete.title")}
-                    </Text>
-                    <View style={styles.statsContainer}>
-                        <Text style={[styles.statValue, { color: colors.primary }]}>{total}</Text>
-                        <Text style={[styles.statLabel, { color: isDark ? colors.dark.textSecondary : colors.light.textSecondary }]}>
-                            {t("workout.complete.totalPushups", { count: total })}
-                        </Text>
-                    </View>
-                    <Button onPress={handleGoHome} size="large">
-                        {t("workout.complete.goHome")}
-                    </Button>
-                    <Button
-                        onPress={() => Share.share({ message: t("workout.complete.shareMessage", { count: total }) })}
-                        variant="secondary"
-                        style={{ marginTop: spacing.md }}
-                    >
-                        {t("workout.complete.share")}
-                    </Button>
-                </View>
+                <CompletionView
+                    completedReps={completedReps}
+                    onGoHome={handleGoHome}
+                    isDark={isDark}
+                />
             </SafeScreen>
         );
     }
@@ -310,7 +292,7 @@ export default function WorkoutSessionScreen() {
                     </Animated.View>
 
                     <View style={styles.tapInstructionContainer}>
-                        <View style={[styles.tapIconCircle, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+                        <View style={[styles.tapIconCircle, { backgroundColor: hexToRgba(colors.primary, 0.15) }]}>
                             <Feather name="target" size={24} color={colors.primary} />
                         </View>
                         <Text style={[styles.tapHintPrimary, {
@@ -336,25 +318,13 @@ export default function WorkoutSessionScreen() {
                     </View>
                 )}
             </View>
-            {/* Paused Overlay */}
-            {isPaused && (
-                <View style={[styles.overlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)' }]}>
-                    <View style={styles.center}>
-                        <Feather name="pause-circle" size={64} color={colors.primary} style={{ marginBottom: spacing.lg }} />
-                        <Text style={[styles.title, { color: isDark ? colors.dark.textPrimary : colors.light.textPrimary }]}>
-                            {t("common.pause")}
-                        </Text>
-                        <View style={{ gap: spacing.md, width: '100%', paddingHorizontal: spacing.xl }}>
-                            <Button onPress={handleResume} size="large">
-                                {t("common.resume")}
-                            </Button>
-                            <Button onPress={handleQuit} variant="secondary">
-                                {t("common.quit")}
-                            </Button>
-                        </View>
-                    </View>
-                </View>
-            )}
+
+            <PauseOverlay
+                isVisible={isPaused}
+                onResume={handleResume}
+                onQuit={handleQuit}
+                isDark={isDark}
+            />
         </SafeScreen>
     );
 }
@@ -413,28 +383,6 @@ const styles = StyleSheet.create({
     footer: {
         padding: spacing.lg,
     },
-    completeContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: spacing.xl,
-    },
-    title: {
-        ...typography.h1,
-        marginBottom: spacing.xl,
-        textAlign: "center",
-    },
-    statsContainer: {
-        marginBottom: spacing.xl * 2,
-        alignItems: "center",
-    },
-    statValue: {
-        fontSize: 60,
-        fontWeight: "800",
-    },
-    statLabel: {
-        ...typography.h3,
-    },
     tapInstructionContainer: {
         marginTop: spacing.xl,
         alignItems: 'center',
@@ -459,11 +407,5 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         opacity: 0.7,
         marginTop: 4,
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        zIndex: 999,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
 });
