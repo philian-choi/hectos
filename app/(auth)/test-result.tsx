@@ -1,3 +1,4 @@
+
 import { View, Text, StyleSheet, useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useUserStore } from "@/stores/useUserStore";
 import { colors, spacing, typography } from "@/constants/theme";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const AnalysisBar = ({ label, value, color, isDark }: { label: string, value: number, color: string, isDark: boolean }) => (
     <View style={{ marginBottom: 12, width: '100%' }}>
@@ -28,6 +30,7 @@ export default function TestResultScreen() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const { initialTestResult, currentColumn, setOnboardingComplete } = useUserStore();
+    const { registerForPushNotificationsAsync, scheduleDailyReminder } = useNotifications();
 
     const themeColors = isDark ? colors.dark : colors.light;
 
@@ -36,7 +39,15 @@ export default function TestResultScreen() {
     const enduranceScore = Math.min(Math.round((initialTestResult / 40) * 10), 10);
     const potentialScore = Math.min(Math.max(10 - strengthScore + 2, 4), 10);
 
-    const handleStart = () => {
+    const handleStart = async () => {
+        // Request Notification Permission on First Start
+        try {
+            await registerForPushNotificationsAsync();
+            await scheduleDailyReminder(8, 0); // Default to 8 AM
+        } catch (e) {
+            console.log("Notification setup failed", e);
+        }
+
         setOnboardingComplete();
         router.replace("/(tabs)");
     };
@@ -163,4 +174,3 @@ const styles = StyleSheet.create({
         width: '100%',
     },
 });
-
