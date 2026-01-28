@@ -22,10 +22,14 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "nativewind-env.d.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "landing",
+    "_backup",
+    "_backup_system"
   ],
   "extends": "expo/tsconfig.base"
 }

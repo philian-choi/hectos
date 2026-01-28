@@ -2,42 +2,65 @@
   "expo": {
     "name": "Hectos",
     "slug": "hectos",
-    "version": "1.0.2",
+    "version": "1.2.0",
+    "runtimeVersion": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#002b5c"
+      "backgroundColor": "#FFB800"
     },
     "scheme": "hectos",
-    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.hectos.app",
-      "buildNumber": "10",
+      "buildNumber": "18",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "runtimeVersion": "1.0.2"
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Hectos uses the camera to detect your face position during pushups for automatic counting. No video is recorded or stored.",
+        "NSMotionUsageDescription": "Hectos uses motion sensors to detect your movement during pushups for automatic counting.",
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#002b5c"
+        "backgroundColor": "#FFB800"
       },
-      "package": "com.hectos.app",
-      "runtimeVersion": {
-        "policy": "appVersion"
-      }
+      "package": "com.hectos.app"
     },
     "web": {
       "bundler": "metro",
       "output": "static"
     },
     "plugins": [
-      "expo-localization"
+      "expo-router",
+      "expo-localization",
+      [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "Hectos uses the camera to detect your face position during pushups for automatic counting.",
+          "enableMicrophonePermission": false
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0",
+            "useFrameworks": "static"
+          }
+        }
+      ],
+      "./plugins/withIosNonModularHeaders",
+      "@react-native-community/datetimepicker",
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true
@@ -49,9 +72,6 @@
       "eas": {
         "projectId": "bf521554-4167-4d56-b303-dc9f231cc75e"
       }
-    },
-    "updates": {
-      "url": "https://u.expo.dev/bf521554-4167-4d56-b303-dc9f231cc75e"
     }
   }
 }

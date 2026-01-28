@@ -11,6 +11,8 @@ Notifications.setNotificationHandler({
         shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
     }),
 });
 
@@ -18,8 +20,8 @@ export function useNotifications() {
     const { t } = useTranslation();
     const [expoPushToken, setExpoPushToken] = useState<string | undefined>('');
     const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
-    const notificationListener = useRef<Notifications.Subscription>();
-    const responseListener = useRef<Notifications.Subscription>();
+    const notificationListener = useRef<Notifications.Subscription | null>(null);
+    const responseListener = useRef<Notifications.Subscription | null>(null);
 
     useEffect(() => {
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -32,12 +34,8 @@ export function useNotifications() {
         });
 
         return () => {
-            if (notificationListener.current) {
-                Notifications.removeNotificationSubscription(notificationListener.current);
-            }
-            if (responseListener.current) {
-                Notifications.removeNotificationSubscription(responseListener.current);
-            }
+            notificationListener.current?.remove();
+            responseListener.current?.remove();
         };
     }, []);
 
@@ -93,6 +91,7 @@ export function useNotifications() {
                 sound: true,
             },
             trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
                 hour,
                 minute,
                 repeats: true,
@@ -107,7 +106,9 @@ export function useNotifications() {
                 body: t("notifications.nudge.body", { defaultValue: "Day 1 is waiting. Start your journey today." }),
             },
             trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
                 seconds: secondsFromNow,
+                repeats: false,
             },
         });
     };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, useColorScheme, Linking, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator, useColorScheme, Linking, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Feather } from '@expo/vector-icons';
@@ -7,8 +7,10 @@ import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, w
 import * as RNIap from 'react-native-iap';
 
 import { SafeScreen } from '@/components/layout/SafeScreen';
-import { Button } from '@/components/ui/Button';
-import { colors, spacing, typography } from '@/constants/theme';
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { Card } from "@/components/ui/card";
+import { colors } from '@/constants/theme';
 import { useUserStore } from '@/stores/useUserStore';
 import { PurchaseManager } from '@/lib/iap';
 import { Analytics } from '@/lib/analytics';
@@ -74,7 +76,7 @@ export default function PurchaseScreen() {
                 }
             );
             const items = await PurchaseManager.getProducts();
-            setProducts(items);
+            setProducts(items as RNIap.Product[]);
         } catch (e) {
             console.warn('IAP Setup Error', e);
         }
@@ -99,7 +101,7 @@ export default function PurchaseScreen() {
 
             // Check if user has purchased the specific non-consumable product
             const hasExistingPurchase = purchases.some(
-                (p) => p.productId === PRODUCT_ID || p.productId === 'com.hectos.app.program'
+                (p) => p.id === PRODUCT_ID || p.id === 'com.hectos.app.program'
             );
 
             if (hasExistingPurchase) {
@@ -121,82 +123,88 @@ export default function PurchaseScreen() {
         }
     };
 
-    const product = products.find(p => p.productId === PRODUCT_ID);
-    const price = product ? product.localizedPrice : "$2.99";
+    const product = products.find(p => p.id === PRODUCT_ID);
+    const price = product ? product.displayPrice : "$2.99";
 
     return (
+
         <SafeScreen>
-            <View style={styles.header}>
-                <Button variant="ghost" onPress={() => router.back()} style={styles.closeButton}>
+            <View className="flex-row items-center justify-between px-4 py-2">
+                <Button variant="ghost" size="icon" onPress={() => router.back()}>
                     <Feather name="x" size={24} color={themeColors.textPrimary} />
                 </Button>
-                <Text style={[styles.headerTitle, { color: themeColors.textPrimary }]}>{t('purchase.title')}</Text>
-                <View style={{ width: 44 }} />
+                <Text className="text-lg font-semibold text-foreground">{t('purchase.title')}</Text>
+                <View className="w-11" />
             </View>
 
-            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-                <Animated.View style={[styles.proBadgeContainer, animatedBadgeStyle]}>
-                    <Text style={styles.proBadgeText}>PRO ACCESS</Text>
+            <ScrollView contentContainerStyle={{ padding: 24, alignItems: 'center', paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+                <Animated.View style={[animatedBadgeStyle, { zIndex: 10, marginBottom: -16 }]}>
+                    <View className="bg-amber-500 px-3 py-1.5 rounded-xl border-2 border-white dark:border-slate-900">
+                        <Text className="text-white font-black text-xs tracking-widest">{t('purchase.proAccess')}</Text>
+                    </View>
                 </Animated.View>
 
-                <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)' }]}>
+                <View className="w-32 h-32 rounded-full justify-center items-center mb-6 bg-primary/10 border-4 border-primary/10 shadow-lg shadow-primary/30">
                     <Feather name="zap" size={64} color={colors.primary} />
                 </View>
 
-                <Text style={[styles.title, { color: themeColors.textPrimary }]}>{t('purchase.aiAnalysis')}</Text>
-                <Text style={[styles.description, { color: themeColors.textSecondary }]}>
+                <Text className="text-3xl font-black text-center mb-2 text-foreground">{t('purchase.aiAnalysis')}</Text>
+                <Text className="text-base text-center mb-8 px-4 text-muted-foreground leading-6">
                     {t('purchase.description')}
                 </Text>
 
-                <View style={styles.benefitList}>
-                    <BenefitItem icon="check" text={t('purchase.benefit1')} isDark={isDark} />
-                    <BenefitItem icon="check" text={t('purchase.benefit2')} isDark={isDark} />
-                    <BenefitItem icon="check" text={t('purchase.benefit3')} isDark={isDark} />
-                </View>
+                <Card className="w-full gap-4 p-0 bg-transparent border-0 shadow-none">
+                    <BenefitItem icon="check" text={t('purchase.benefit1')} />
+                    <BenefitItem icon="check" text={t('purchase.benefit2')} />
+                    <BenefitItem icon="check" text={t('purchase.benefit3')} />
+                </Card>
             </ScrollView>
 
-            <View style={[styles.footer, { borderTopColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }]}>
+            <View className="p-6 pt-6 border-t border-border">
                 {loading ? (
-                    <View style={[styles.buyButton, { backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }]}>
+                    <View className="h-14 rounded-2xl bg-primary justify-center items-center">
                         <ActivityIndicator color="white" />
                     </View>
                 ) : (
                     <Button
                         onPress={handlePurchase}
-                        size="large"
+                        size="lg"
+                        className="h-14 rounded-2xl w-full"
                         disabled={loading}
                         accessibilityRole="button"
                         accessibilityLabel={`${t('purchase.buyButton')} ${price}`}
                     >
-                        {`${t('purchase.buyButton')} - ${price}`}
+                        <Text className="text-lg font-bold text-primary-foreground">
+                            {`${t('purchase.buyButton')} - ${price}`}
+                        </Text>
                     </Button>
                 )}
 
                 <Button
                     variant="ghost"
                     onPress={handleRestore}
-                    style={{ marginTop: 12 }}
+                    className="mt-3"
                     accessibilityRole="button"
                     accessibilityLabel={t('purchase.restore')}
                 >
-                    <Text style={{ color: themeColors.textSecondary, fontWeight: '500' }}>{t('purchase.restore')}</Text>
+                    <Text className="text-muted-foreground font-medium">{t('purchase.restore')}</Text>
                 </Button>
 
-                <View style={styles.legalLinks}>
+                <View className="flex-row justify-center items-center mt-4 gap-2">
                     <TouchableOpacity
                         onPress={() => Linking.openURL('https://hectos.app/terms')}
                         accessibilityRole="link"
                         accessibilityLabel={t('settings.termsOfService')}
                     >
-                        <Text style={styles.legalText}>{t('settings.termsOfService')}</Text>
+                        <Text className="text-xs text-muted-foreground underline">{t('settings.termsOfService')}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.legalSeparator}>|</Text>
+                    <Text className="text-xs text-muted-foreground">|</Text>
                     <TouchableOpacity
                         onPress={() => Linking.openURL('https://hectos.app/privacy')}
                         accessibilityRole="link"
                         accessibilityLabel={t('settings.privacyPolicy')}
                     >
-                        <Text style={styles.legalText}>{t('settings.privacyPolicy')}</Text>
+                        <Text className="text-xs text-muted-foreground underline">{t('settings.privacyPolicy')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -204,138 +212,16 @@ export default function PurchaseScreen() {
     );
 }
 
-function BenefitItem({ icon, text, isDark }: { icon: string, text: string, isDark: boolean }) {
-    const themeColors = isDark ? colors.dark : colors.light;
+function BenefitItem({ icon, text }: { icon: string, text: string }) {
     return (
-        <View style={[styles.benefitItem, { backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
-            <View style={styles.benefitIconCircle}>
+        <View className="flex-row items-center gap-4 p-4 rounded-2xl bg-muted/40">
+            <View className="w-7 h-7 rounded-full bg-primary/15 justify-center items-center">
                 <Feather name={icon as any} size={16} color={colors.primary} />
             </View>
-            <Text style={[styles.benefitText, { color: themeColors.textPrimary }]}>{text}</Text>
+            <Text className="text-base font-medium text-foreground flex-1">{text}</Text>
         </View>
     );
 }
 
-const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: spacing.sm,
-        paddingVertical: spacing.sm,
-    },
-    closeButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 17,
-        fontWeight: '600',
-    },
-    container: {
-        padding: spacing.xl,
-        alignItems: 'center',
-        paddingBottom: 40,
-    },
-    iconContainer: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: spacing.xl,
-        shadowColor: colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 8,
-        borderWidth: 4,
-        borderColor: 'rgba(59, 130, 246, 0.1)',
-    },
-    proBadgeContainer: {
-        backgroundColor: '#F59E0B', // Amber 500
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 12,
-        marginBottom: -16, // Overlap
-        zIndex: 10,
-        borderWidth: 2,
-        borderColor: '#FFF',
-    },
-    proBadgeText: {
-        color: '#FFF',
-        fontWeight: '900',
-        fontSize: 12,
-        letterSpacing: 1,
-    },
-    title: {
-        ...typography.h1,
-        textAlign: 'center',
-        marginBottom: spacing.sm,
-        fontSize: 28,
-    },
-    description: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginBottom: spacing.xl * 2,
-        lineHeight: 24,
-        paddingHorizontal: spacing.md,
-    },
-    benefitList: {
-        width: '100%',
-        gap: spacing.md,
-    },
-    benefitItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: spacing.md,
-        padding: spacing.md,
-        borderRadius: 16,
-    },
-    benefitIconCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: 'rgba(59, 130, 246, 0.15)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    benefitText: {
-        fontSize: 16,
-        fontWeight: '500',
-        flex: 1,
-    },
-    footer: {
-        padding: spacing.xl,
-        paddingTop: spacing.lg,
-        borderTopWidth: 1,
-    },
-    buyButton: {
-        height: 56,
-        borderRadius: 16,
-    },
-    buyButtonText: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '700',
-    },
-    legalLinks: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: spacing.md,
-        gap: spacing.sm,
-    },
-    legalText: {
-        fontSize: 12,
-        color: colors.dark.textSecondary,
-        textDecorationLine: 'underline',
-    },
-    legalSeparator: {
-        fontSize: 12,
-        color: colors.dark.textSecondary,
-    }
-});
+const styles = {};
 

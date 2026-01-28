@@ -1,0 +1,18 @@
+# BMad Method: Zero-Lie & Perfect App Protocol
+
+## 1. Definition of Done (DoD)
+The Agent MUST NOT declare a task "complete" until:
+1. **Build Verification**: `npx expo run:ios` (Local Build) passes successfully.
+2. **Logic Verification**: `npx tsc --noEmit` returns zero errors.
+3. **Business Logic**: For IAP related tasks, `finishTransaction` and listeners MUST be implemented.
+4. **App Store Ready**: The app must be in a state ready for submission (No "To Do", No broken assets).
+
+## 2. Integrity Protocol
+- NEVER say "It works" if you haven't seen the build log.
+- NEVER skip Gate 3 (Native Build) for speed. Speed comes from correctness, not shortcuts.
+- If a Native Module (`react-native-iap`, `expo-sensors`) is used, verify its compatibility with the current Expo SDK.
+
+## 3. IAP & Payment Checklist
+- Global `purchaseUpdatedListener` is MANDATORY.
+- `finishTransaction` is MANDATORY to prevent payment deadlocks.
+- A "Fail-Safe" mode must exist for TestFlight/Reviewers when Store is unreachable.
